@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Оповещение</title>
+</head>
+<body>
+    <h2>Здравствуй, новая <a href='{{ link }}'>статья</a> в твоем любимом разделе</h2>
+    {{ post_text|truncatechars:50 }}
+</body>
+</html>

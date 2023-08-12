@@ -1,0 +1,21 @@
+{% extends 'flatpages/default.html' %}
+
+{% block title %}
+Search
+{% endblock title %}
+
+{% block content %}
+    <h2>Поиск по новостям</h2>
+    <form action="" method="get">
+        {{ filterset.form.as_p }}
+        <input type="submit" value="Найти"/>
+    </form>
+    {% for event in post_search %}
+     <div>
+         {{ event.post_author.user.username }}
+         {{ event.post_header }}
+         {{ event.post_time_in|date:'d.m.Y' }}
+         {{ event.post_text|truncatechars:20 }}
+     </div>
+    {% endfor %}
+{% endblock content %}

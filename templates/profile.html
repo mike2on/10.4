@@ -1,0 +1,11 @@
+{% extends 'flatpages/default.html' %}
+
+{% block content %}
+    <h1 style="margin-top: 20px">Страница профиля пользователя</h1>
+    <br>
+    {% if is_not_author %}
+        <a href="{% url 'upgrade' %}" class="btn btn-primary btn-sm"> Cтать автором!</a>
+    {% else %}
+        <h4> Вы уже автор </h4>
+    {% endif %}
+{% endblock content %}

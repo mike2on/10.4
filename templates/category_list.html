@@ -1,0 +1,75 @@
+{% extends 'flatpages/default.html' %}
+{% load custom_filters %}
+{% load custom_tags %}
+
+{% block title %}
+{{ flatpage.title }}
+{% endblock title %}
+
+{% block content %}
+
+    {% if is_not_subscriber %}
+        <p class="tex_center"><a href="{% url 'subscribe' post_link.id %}" class="btn btn-secondary btn-sm">Подписаться</a></p>
+
+    {% else %}
+        <p class="text-center"><a href="{% url 'unsubscribe' post_link.id %}" class="btn btn-secondary btn-sm">Отписаться</a></p>
+   {% endif %}
+
+    <h1>Новости по категориям</h1>
+
+       {% if category_news_list %}
+           <table> <!-- Начинаем описывать таблицу -->
+               <tr> <!-- Добавляем строку -->
+                   <td><h2><p style="text-align: center;">Название статьи&nbsp; &nbsp;
+                   </p></h2></td>
+                   <td><h2><p style="text-align: center;">Автор&nbsp; &nbsp;
+                   </p></h2></td>
+                   <td><h2><p style="text-align: center;"> Текст статьи&nbsp; &nbsp; </p></h2></td>
+                   <td><h2><p style="text-align: center;"> Категория статьи&nbsp; &nbsp; </p></h2></td>
+                   <td><h2><p style="text-align: center;"> Дата публикации</p></h2></td>
+               </tr>
+               {% for event in category_news_list %}
+
+            <tr>
+              <td>{{ event.post_header|censor }}</td>
+              <td>{{ event.post_author }}</td>
+              <td>{{ event.post_text|truncatechars:20|censor }}</td>
+
+              <td>
+                  {% for category in event.post_link.all %}
+                        <a href="{% url 'category_list' category.id %}">{{ category }}</a>
+                  {% endfor %}
+              </td>
+              <td>{{ event.post_time_in|date:'h m d M Y' }}</td>
+
+            </tr>
+            {% endfor %}
+
+       </table>
+    {% else %}
+       <h2>Статей нет!</h2>
+   {% endif %}
+
+{# Добавляем пагинацию на страницу #}
+
+   {# Информация о предыдущих страницах #}
+   {% if page_obj.has_previous %}
+       {# Для каждой ссылки пагинации указываем обработку через новый тег #}
+       <a href="?{% url_replace page=1 %}">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+
+   {{ page_obj.number }}
+
+   {% if page_obj.has_next %}
+       <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
+
+{% endblock content %}
