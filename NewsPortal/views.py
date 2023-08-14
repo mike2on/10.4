@@ -7,6 +7,7 @@ from .models import Post, Category
 from pprint import pprint
 from .forms import PostForm
 from django.urls import reverse_lazy
+from .tasks import new_post_task
 
 from django.shortcuts import redirect, render, get_object_or_404
 
@@ -72,6 +73,16 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
     form_class = PostForm
     model = Post
     template_name = 'post_create.html'
+
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        if self.request.path == '/news/articles/create/':
+            post.post_choice = 'AR'
+        elif self.request.path == '/news/create/':
+            post.post_choice = 'NE'
+        post.save()
+        new_post_task.delay(post.pk)
+        return super().form_valid(form)
 
 
 class NewsUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
