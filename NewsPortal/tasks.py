@@ -5,16 +5,25 @@ from .models import Category, Post
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
-def send_notifications(preview, pk, post_header, subscribers):
+@shared_task
+def new_post_task(pk):
+    post = Post.objects.get(pk=pk)
+    categories = post.post_link.all()
+    subscribers: list[str] = []
+    for category in categories:
+        subscribers_user = category.subscribers.all()
+        for user in subscribers_user:
+            subscribers.append(user.email)
+
     html_content = render_to_string(
         'post_created_email.html',
         {
-            'post_text': preview,
+            'post_text': post.preview(),
             'link': f'{settings.SITE_URL}/news/{pk}'
         }
     )
     msg = EmailMultiAlternatives(
-        subject=post_header,
+        subject=post.post_header,
         body='',
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=subscribers,
@@ -22,16 +31,6 @@ def send_notifications(preview, pk, post_header, subscribers):
 
     msg.attach_alternative(html_content, 'text/html')
     msg.send()
-
-
-@shared_task
-def new_post_task():
-    post = Post.objects.all()
-    categories = set(post.values_list('post_link__category_name', flat=True))
-    subscribers = set(
-        Category.objects.filter(category_name__in=categories).values_list('subscribers__email', flat=True))
-    send_notifications(Post.preview, Post.pk, Post.post_header, subscribers)
-
 
 
 @shared_task
