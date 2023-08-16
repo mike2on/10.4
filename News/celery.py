@@ -8,10 +8,6 @@ app = Celery('NewsPortal')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 app.conf.beat_schedule = {
-    'new_post_task': {
-        'task': 'NewsPortal.tasks.new_post_task',
-        'schedule': crontab(),
-    },
     'weekly_notifications': {
         'task': 'NewsPortal.tasks.weekly_notifications_task',
         'schedule': crontab(),
